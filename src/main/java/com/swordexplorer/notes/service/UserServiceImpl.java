@@ -38,8 +38,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     NotesUser user = userRepo.findByUsername(username);
     if (user == null) {
-      log.error("User {} not found", username);
-      throw new UsernameNotFoundException("User " + username + " not found");
+      log.error("User '{}' not found", username);
+      throw new UsernameNotFoundException("User '" + username + "' not found");
     }
     log.info("User {} was found in DB", username);
 
