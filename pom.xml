@@ -85,6 +85,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<?m2e execute onConfiguration,onIncremental?>
 						<id> Build the Vue UI </id>
 						<phase>generate-resources</phase>
 						<goals>
@@ -97,11 +98,9 @@
 								<argument>run</argument>
 								<argument>build</argument>
 							</arguments>
-
 						</configuration>
 					</execution>
 				</executions>
-
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
