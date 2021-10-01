@@ -3,34 +3,48 @@ import axios from "axios";
 export default (function (axios) {
   axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
+  function emptyString(s){
+    if( !s )
+      return true;
+    return s.trim().length === 0;
+  }
+
   class Backend {
 
     constructor({hostname, port} = {}) {
       this.hostname = hostname || 'localhost';
       this.port = port || 8080;
-      this.accessToken = null;
-      this.refreshToken = null;
+      this.accessToken = '';
+      this.refreshToken = '';
     }
 
     async login(username, password) {
       console.log(`backend.login: ${username},${password}`);
       return this.callBackend(`api/login?username=${username}&password=${password}`, 'POST', {}, {}).then((response) => {
-        const {access_token: accessToken, refresh_token: refreshToken} = response.data;
-        this.refreshToken = refreshToken;
-        this.accessToken = accessToken;
-        return [{accessToken, refreshToken}];
+        const access_token = response.data.access_token;
+        const refresh_token = response.data.refresh_token;
+        this.refreshToken = refresh_token;
+        this.accessToken = access_token;
+        return [{
+          accessToken: access_token,
+          refreshToken: refresh_token}];
       }, (err) => {
         return [null, `authentication error: ${err}`];
       });
     }
 
-    logout() {
-      this.accessToken = null;
-      this.refreshToken = null;
+    async logout() {
+      console.log(`backend.logout`);
+      this.accessToken = '';
+      this.refreshToken = '';
+      return null;
     }
 
     authenticated() {
-      return this.accessToken && this.accessToken.length > 0 && this.refreshToken && this.refreshToken.length > 0;
+      console.log(`backend.authenticated: tokens: ${this.accessToken}:${this.refreshToken}`);
+      const authOk = !emptyString( this.accessToken ) && !emptyString( this.refreshToken );
+      console.log(`backend.authenticated: ${authOk}`);
+      return authOk;
     }
 
     async callBackend(path, method, headers, data) {

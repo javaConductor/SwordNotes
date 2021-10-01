@@ -1,16 +1,11 @@
 package com.swordexplorer.notes.service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
-
 import com.swordexplorer.notes.security.model.NotesUser;
 import com.swordexplorer.notes.security.model.Role;
 import com.swordexplorer.notes.security.repo.RoleRepo;
 import com.swordexplorer.notes.security.repo.UserRepo;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dom4j.IllegalAddException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -20,8 +15,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +30,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   private final UserRepo userRepo;
   private final RoleRepo roleRepo;
   private final PasswordEncoder passwordEncoder;
+
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -44,9 +42,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     log.info("User {} was found in DB", username);
 
     Collection<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-        .map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+      .map(role -> new SimpleGrantedAuthority(role.getName()))
+      .collect(Collectors.toList());
     log.info("User {} has roles: {}", username,
-        user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()));
+      user.getRoles().stream()
+        .map(role -> role.getName())
+        .collect(Collectors.toList()));
 
     return new User(user.getUsername(), user.getPassword(), authorities);
   }
