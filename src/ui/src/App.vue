@@ -1,12 +1,24 @@
 <template>
   <div id="app">
-    <Login :username="username" :password="password" :authenticated="isAuthenticated" />
+    <v-container>
+      <v-row>
+        <v-col>
+          <Login :username="username" :password="password" :authenticated="isAuthenticated" />
+        </v-col>
+      </v-row>
+      <v-row v-if="isAuthenticated">
+        <v-col>
+          <Home :username="username"/>
+        </v-col>
+      </v-row>
+    </v-container>
+
   </div>
 </template>
 
 <script>
-  import Login from './components/Login.vue'
-  import backend from './backend';
+  import Login from './components/Login.vue';
+  import Home from './components/Home.vue';
   import pubsub from './pubsub';
 
   export default {
@@ -19,7 +31,7 @@
       }
     },
     components: {
-      Login
+      Login, Home
     },
     created() {
       pubsub.$on("user.login", (auth) => {
@@ -28,19 +40,6 @@
         this.password = auth.password;
       });
     },
-    watch: {
-      authenticated: function(isAuthenticated, wasAuthenticated) { // watch it
-        console.log('watch: authenticated changed from ', isAuthenticated, ' to ', wasAuthenticated);
-        this.isAuthenticated = isAuthenticated;
-      }
-    },
-    methods: {
-      authenticated() {
-        const a = !!backend.authenticated();
-        console.log(`App:authenticated() => ${a}`);
-        return a;
-      }
-    }
   }
 </script>
 

@@ -10,7 +10,7 @@
     <relativePath/>
     <!-- lookup parent from repository -->
   </parent>
-  <groupId>com.swordexplorer</groupId>
+  <groupId>org.swordexplorer</groupId>
   <artifactId>notes</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>notes</name>
@@ -65,6 +65,12 @@
       <artifactId>java-jwt</artifactId>
       <version>3.18.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>22.0.0</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -84,6 +90,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <?m2e execute onConfiguration,onIncremental?>
@@ -125,6 +132,14 @@
           </execution>
         </executions>
         <version>3.2.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
       </plugin>
     </plugins>
   </build>

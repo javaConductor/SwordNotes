@@ -2,29 +2,45 @@
   <v-container class="login">
 
     <v-row justify="space-around" v-if="!authenticated">
+      <v-col>
+        <v-card>
 
-      <v-col lg="3" md="5">
-        <v-text-field class="text-field" label="Username" v-model="username"/>
-      </v-col>
-      <v-col lg="3" md="5">
-        <v-text-field type="password" class="text-field" label="Password" v-model="password"/>
-      </v-col>
-      <v-col lg="1" md="1">
-        <v-btn @click="onLogin">Login</v-btn>
-      </v-col>
+          <v-container>
+            <v-row>
+              <v-col lg="3" md="5">
+                <v-text-field class="text-field" label="Username" v-model="username"/>
+              </v-col>
+              <v-col lg="3" md="5">
+                <v-text-field class="text-field" label="Password" type="password" v-model="password"/>
+              </v-col>
+            </v-row>
+          </v-container>
 
-
+          <v-card-actions>
+            <v-btn @click="onLogin">Login</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
     </v-row>
 
     <v-row justify="space-around" v-if="authenticated">
+      <v-col>
+        <v-card>
 
-      <v-col lg="3" md="3">
-        Welcome {{username}}!
-      </v-col>
-      <v-col lg="1" md="4">
-        <v-btn @click="onLogout">Logout</v-btn>
-      </v-col>
+          <v-container>
+            <v-row>
+              <v-col lg="3" md="3">
+              Welcome {{username}}!
+              </v-col>
+            </v-row>
+          </v-container>
 
+          <v-card-actions>
+            <v-btn @click="onLogout">Logout</v-btn>
+          </v-card-actions>
+
+        </v-card>
+      </v-col>
     </v-row>
 
   </v-container>
