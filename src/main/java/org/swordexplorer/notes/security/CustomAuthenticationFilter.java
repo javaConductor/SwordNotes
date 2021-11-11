@@ -53,7 +53,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     HttpServletRequest request,
     HttpServletResponse response,
     FilterChain chain,
-    Authentication authentication) throws IOException, ServletException {
+    Authentication authentication) throws IOException {
 
     User user = (User) authentication.getPrincipal();
     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
@@ -74,8 +74,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList()))
       .sign(algorithm);
-    // response.setHeader("access_token", accessToken);
-    // response.setHeader("refresh_token", refreshToken);
+
     Map<String, String> tokens = new HashMap<>();
     tokens.put("access_token", accessToken);
     tokens.put("refresh_token", refreshToken);

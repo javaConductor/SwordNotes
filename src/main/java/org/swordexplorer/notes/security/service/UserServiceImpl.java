@@ -1,4 +1,4 @@
-package org.swordexplorer.notes.service;
+package org.swordexplorer.notes.security.service;
 
 
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.swordexplorer.notes.security.model.NotesUser;
 import org.swordexplorer.notes.security.model.Role;
-import org.swordexplorer.notes.security.repo.RoleRepo;
-import org.swordexplorer.notes.security.repo.UserRepo;
+import org.swordexplorer.notes.security.model.repo.RoleRepo;
+import org.swordexplorer.notes.security.model.repo.UserRepo;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   @Override
   public void addRoleToUser(String username, String rolename) {
 
-    log.info("Saving new role {} fo user {}", rolename, username);
+    log.info("Saving new role {} for user {}", rolename, username);
     NotesUser u = userRepo.findByUsername(username);
     if (u == null) {
       throw new IllegalAddException("No such username:" + username);

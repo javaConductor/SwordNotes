@@ -20,42 +20,11 @@ import java.util.Optional;
   private Map<String, Verse> verses;
   private List<Chapter> chapters;
 
-//  BibleData(List<Book> books, Map<String, Verse> verses, List<Chapter> chapters) {
-//    this.books = books
-//    this.verses = verses
-//    this.chapters = chapters
-//  }
-//
-//  List<Book> getBooks() {
-//    return books
-//  }
-//
-//  void setBooks(List<Book> books) {
-//    this.books = books
-//  }
-//
-//  Map<String, Verse> getVerses() {
-//    return verses
-//  }
-//
-//  void setVerses(Map<String, Verse> verses) {
-//    this.verses = verses
-//  }
-//
-//  List<Chapter> getChapters() {
-//    return chapters
-//  }
-//
-//  void setChapters(List<Chapter> chapters) {
-//    this.chapters = chapters
-//  }
-
   static Optional<BibleData> load(String jsonFilename) {
     InputStream stream = BibleData.class.getResourceAsStream(jsonFilename);
     ObjectMapper objectMapper = new ObjectMapper();
     try {
-      BibleData bibleData = objectMapper.readValue(stream, BibleData.class);
-      return Optional.of(bibleData);
+      return Optional.of(objectMapper.readValue(stream, BibleData.class));
     } catch (IOException e) {
       return Optional.empty();
     }

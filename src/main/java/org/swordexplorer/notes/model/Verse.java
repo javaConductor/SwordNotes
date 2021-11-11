@@ -23,10 +23,10 @@ class Verse {
 
 }
 
-class VerseText extends Verse {
+class VerseWithText extends Verse {
   String text;
 
-  public VerseText(Integer verse, Integer chapter, Integer book, String text) {
+  public VerseWithText(Integer verse, Integer chapter, Integer book, String text) {
     super(verse, chapter, book);
     this.text = text;
   }

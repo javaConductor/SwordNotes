@@ -133,7 +133,8 @@ public class SimpleBibleService implements BibleService {
   @Override
   public Map<String, Object> parseVerseSpec(String verseSpec) {
     if (!isVerseSpec(verseSpec))
-      return (Map<String, Object>) Collections.EMPTY_MAP;
+      // return new HashMap<String, Object>();
+      return Map.of();
     String[] parts = verseSpec.split(":");
     List<String> bkChpt = Arrays.asList(parts[0].split(" "));
     int chapter = Integer.parseInt(bkChpt.get(0));
@@ -148,7 +149,7 @@ public class SimpleBibleService implements BibleService {
         // optimize verses
         m.put("verses", optimizeVerseSpecVerses(verses1));
         return m;
-      }).orElse((Map<String, Object>) Collections.EMPTY_MAP);
+      }).orElse(Map.of());
   }
 
   @Override
@@ -193,7 +194,7 @@ public class SimpleBibleService implements BibleService {
 
   @Override
   public Optional<Book> bookNameToBook(@NonNull final String bkName) {
-    Book theBook;
+    Book theBook = null;
     String bkNameUpper = bkName.toUpperCase();
 
     //find exact match
@@ -257,14 +258,14 @@ public class SimpleBibleService implements BibleService {
 
     String bkIdStr = vid.substring(0, 2);
     int bkId = Integer.parseInt(bkIdStr);
-
     if (bkId > 66 || bkId < 1)
       return null;
+
     String chapterStr = vid.substring(2, 5);
     int chapter = Integer.parseInt(chapterStr);
 
     String verseIdStr = vid.substring(0, 2);
-    int verse = Integer.parseInt(bkIdStr);
+    int verse = Integer.parseInt(verseIdStr);
 
     final Book book = getBook(bkId);
     if (book == null)

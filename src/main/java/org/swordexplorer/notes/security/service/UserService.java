@@ -1,11 +1,9 @@
-package org.swordexplorer.notes.service;
-
+package org.swordexplorer.notes.security.service;
 
 import org.swordexplorer.notes.security.model.NotesUser;
 import org.swordexplorer.notes.security.model.Role;
 
 import java.util.List;
-
 
 public interface UserService {
   NotesUser saveUser(NotesUser user);
@@ -17,6 +15,4 @@ public interface UserService {
   NotesUser getUser(String username);
 
   List<NotesUser> getUsers();
-
-
 }

@@ -8,23 +8,23 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.swordexplorer.notes.security.model.NotesUser;
 import org.swordexplorer.notes.security.model.Role;
-import org.swordexplorer.notes.service.UserService;
+import org.swordexplorer.notes.security.service.UserService;
 
 import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserResource {
   private final UserService userService;
 
-  @GetMapping("/users")
+  @GetMapping("/")
   public ResponseEntity<List<NotesUser>> getUsers() {
     return ResponseEntity.ok().body(userService.getUsers());
   }
 
-  @PostMapping(value = "/user/save")
+  @PostMapping(value = "/save")
   public ResponseEntity<NotesUser> saveUser(@RequestBody NotesUser user) {
     URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
     return ResponseEntity.created(uri).body(userService.saveUser(user));
