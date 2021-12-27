@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.sql.Date;
 
 @Data
 @Entity
@@ -17,5 +18,7 @@ public class Note {
 
   @NotNull
   String comments;
+
+  boolean isBibleVerse;
 
 }

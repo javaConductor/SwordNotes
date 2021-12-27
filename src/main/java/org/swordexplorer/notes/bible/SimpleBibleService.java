@@ -3,6 +3,8 @@ package org.swordexplorer.notes.bible;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -19,13 +21,14 @@ class Pair {
 }
 
 @Data
+@Component
 public class SimpleBibleService implements BibleService {
   private org.swordexplorer.notes.bible.BibleData bibleData;
   private List<Book> bookList;
   private List<Chapter> chapters;
   private Map<String, Verse> verses;
 
-  public SimpleBibleService(String jsonBibleTextFilename) {
+  public SimpleBibleService( @Value("${sword.bibletext.filename}") String jsonBibleTextFilename) {
     init(jsonBibleTextFilename);
   }
 
@@ -72,6 +75,9 @@ public class SimpleBibleService implements BibleService {
     if (!verseSpec.contains(":"))
       return false;
 
+//    String[] bookAndVerses = verseSpec.split(" ");
+//    String verses = bookAndVerses[1];
+//
     Pattern regexBkChpt = Pattern.compile("(\\d*\\s*\\w+)\\s+(\\d{1,3})");
     Pattern regexVerse = Pattern.compile("(([\\d]{1,3})-*((\\d{1,3}+)[,]*\\s*)*)");
 

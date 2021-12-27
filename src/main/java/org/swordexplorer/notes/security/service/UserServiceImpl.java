@@ -34,7 +34,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
     NotesUser user = userRepo.findByUsername(username);
     if (user == null) {
       log.error("User '{}' not found", username);
@@ -49,7 +48,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
       user.getRoles().stream()
         .map(Role::getName)
         .collect(Collectors.toList()));
-
     return new User(user.getUsername(), user.getPassword(), authorities);
   }
 
@@ -62,20 +60,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
       throw new IllegalAddException("No such username:" + username);
     }
     Role r = roleRepo.findByName(rolename);
+    if (r == null) {
+      throw new IllegalAddException("No such role:" + rolename);
+    }
     u.getRoles().add(r);
   }
 
   @Override
   public List<NotesUser> getUsers() {
     log.info("Getting all users.");
-
     return userRepo.findAll();
   }
 
   @Override
   public NotesUser getUser(String username) {
-    log.info("Finding User {}", username);
+    log.info("Finding User: {}", username);
     return userRepo.findByUsername(username);
+  }
+
+
+  @Override
+  public NotesUser getUserById(Long id) {
+    log.info("Finding User By ID: {}", id);
+    return userRepo.findById(id).orElse(null);
   }
 
   @Override

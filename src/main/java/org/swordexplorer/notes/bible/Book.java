@@ -1,6 +1,8 @@
 package org.swordexplorer.notes.bible;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.List;
  * Created by lcollins on 5/11/2014.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 class Book implements Serializable {
   int id;
   String title;
@@ -22,10 +26,4 @@ class Book implements Serializable {
     return numberOfVersesInChapters.get(chapter - 1);
   }
 
-  Book(int id, String title, int numberOfChapters, List<Integer> numberOfVersesInChapters) {
-    this.id = id;
-    this.title = title;
-    this.numberOfChapters = numberOfChapters;
-    this.numberOfVersesInChapters = numberOfVersesInChapters;
-  }
 }

@@ -6,13 +6,15 @@ import org.swordexplorer.notes.security.model.Role;
 import java.util.List;
 
 public interface UserService {
-  NotesUser saveUser(NotesUser user);
-
   Role saveRole(Role role);
 
   void addRoleToUser(String username, String rolename);
 
+  NotesUser saveUser(NotesUser user);
+
   NotesUser getUser(String username);
+
+  NotesUser getUserById(Long id);
 
   List<NotesUser> getUsers();
 }

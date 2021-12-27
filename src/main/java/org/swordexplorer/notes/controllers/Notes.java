@@ -57,7 +57,7 @@ public class Notes {
     @ApiResponse(code = 500, message = "The request failed because of an unknown server error. Please report the error to the team.")})
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<BibleTopic> getTopic(@PathVariable long id) {
+  public ResponseEntity<BibleTopic> getTopic(@PathVariable long id) throws Exception{
     Optional<BibleTopic> possibleNotes = topicService.getTopic(id);
     return ResponseEntity.ok().body(possibleNotes.orElseThrow(() -> new NoDataFoundException("Could not find notes: " + id)));
   }

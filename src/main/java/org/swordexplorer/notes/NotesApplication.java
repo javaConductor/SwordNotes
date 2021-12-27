@@ -1,19 +1,22 @@
 package org.swordexplorer.notes;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.swordexplorer.notes.security.model.NotesUser;
-import org.swordexplorer.notes.security.model.Role;
 import org.swordexplorer.notes.security.service.UserService;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
+@Slf4j
 public class NotesApplication {
+
+  public final static String MANIFEST_FILENAME = ".topics.manifest";
 
   public static void main(String[] args) {
     SpringApplication.run(NotesApplication.class, args);
@@ -27,7 +30,13 @@ public class NotesApplication {
   @Bean
   CommandLineRunner run(UserService userService) {
     return args -> {
-//
+
+      Arrays.stream(args).peek(s -> {
+        String text = String.format("args: [%s]", s);
+        System.out.println(text);
+//        return text;
+      }).collect(Collectors.toList());
+
 //      NotesUser nu = userService.saveUser(new NotesUser(null, "John Travolta", "john", "1234", new ArrayList<>()));
 //      nu = userService.saveUser(new NotesUser(null, "David Collins", "dave", "1120", new ArrayList<>()));
 //      nu = userService.saveUser(new NotesUser(null, "Sadar Bahar", "sadar", "777", new ArrayList<>()));
@@ -47,10 +56,10 @@ public class NotesApplication {
 
     };
   }
-
-  @Bean
-  public String name() {
-    return "name";
-  }
+//
+//  @Bean
+//  public String name() {
+//    return "name";
+//  }
 
 }

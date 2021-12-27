@@ -55,6 +55,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.10.5</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
@@ -84,6 +89,15 @@
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
       <version>2.0.1.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.12.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
     </dependency>
   </dependencies>
   <build>
@@ -155,6 +169,33 @@
           <target>11</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>${flyway.version}</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>migrate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <url>jdbc:postgresql://devgp7pdb02.ondeck.systems:5432/offers</url>
+          <user>app_offers_ddl_d</user>
+          <password>app_offers_ddl_d</password>
+          <baselineOnMigrate>true</baselineOnMigrate>
+          <schemas>
+            <schema>offers</schema>
+          </schemas>
+          <createSchemas>false</createSchemas>
+          <locations>
+            <location>filesystem:src/main/resources/db/migration</location>
+          </locations>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 
