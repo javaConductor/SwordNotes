@@ -28,10 +28,4 @@ public class BasicTest {
   @Autowired
   private Loader loader;
 
-
-  @Test
-  public void basicTest1() throws Exception {
-    List<BibleTopic> topics = topicService.getTopics();
-    assertEquals(0, topics.size());
-  }
 }

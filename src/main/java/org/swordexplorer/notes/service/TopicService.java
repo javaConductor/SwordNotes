@@ -11,6 +11,7 @@ import org.swordexplorer.notes.model.repository.BibleTopicRepository;
 import org.swordexplorer.notes.model.repository.NoteRepository;
 import org.swordexplorer.notes.security.service.UserService;
 
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.util.List;
@@ -29,8 +30,8 @@ public class TopicService {
   @Autowired
   public TopicService(final BibleTopicRepository bibleTopicRepository,
                       final NoteRepository noteRepository,
-                      final BibleService bibleService,
-                      final UserService userService,
+                      @Named("bibleService") final BibleService bibleService,
+                      @Named("userService") final UserService userService,
                       final EntityManager em) {
     this.bibleTopicRepository = bibleTopicRepository;
     this.noteRepository = noteRepository;
@@ -43,11 +44,11 @@ public class TopicService {
     log.info("getTopic:: {}", id);
     BibleTopic //n = bibleTopicRepository.getById(id);
       n = em.find(BibleTopic.class, id);
-    return n==null ? Optional.empty() : Optional.of(n);
+    return n == null ? Optional.empty() : Optional.of(n);
   }
 
   public BibleTopic createTopic(BibleTopic bibleTopic) {
-    // validate verseSpec
+    //TODO validate verseSpec isVerseSpec==true
     List<Note> savedNotes = bibleTopic.getNotes().stream()
       .map(this::saveNote)
       .collect(Collectors.toList());

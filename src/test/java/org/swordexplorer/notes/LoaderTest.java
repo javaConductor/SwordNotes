@@ -5,6 +5,7 @@ import org.joda.time.DateTimeComparator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.swordexplorer.notes.model.BibleTopic;
@@ -33,15 +34,17 @@ public class LoaderTest {
   private Loader loader;
 
   @AfterEach
-  public void removeFile() throws Exception {
-    new File("/Users/lcollins2/workspace/notes/src/test/resources/topics-csv/test1/" + NotesApplication.MANIFEST_FILENAME).delete();
-    new File("/Users/lcollins2/workspace/notes/src/test/resources/topics-csv/test2/" + NotesApplication.MANIFEST_FILENAME).delete();
-    new File("/Users/lcollins2/workspace/notes/src/test/resources/topics-csv/badDate/" + NotesApplication.MANIFEST_FILENAME).delete();
+  public void removeManifestFile() throws Exception {
+    Path resourceDirectory = Paths.get("src", "test", "resources");
+    String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+
+    new File(absolutePath+"/topics-csv/test1/" + NotesApplication.MANIFEST_FILENAME).delete();
+    new File(absolutePath+"/topics-csv/test2/" + NotesApplication.MANIFEST_FILENAME).delete();
+    new File(absolutePath+"/topics-csv/badDate/" + NotesApplication.MANIFEST_FILENAME).delete();
   }
 
   @Test
   public void loadTestTopic1NoNotes() throws Exception {
-
     Path resourceDirectory = Paths.get("src", "test", "resources", "topics-csv", "test1");
     String absolutePath = resourceDirectory.toFile().getAbsolutePath();
     List<Long> newTopicIds = loader.load(absolutePath);
@@ -66,7 +69,6 @@ public class LoaderTest {
 
   @Test
   public void loadTestTopic2() throws Exception {
-
     Path resourceDirectory = Paths.get("src", "test", "resources", "topics-csv", "test2");
     String absolutePath = resourceDirectory.toFile().getAbsolutePath();
     List<Long> newTopicIds = loader.load(absolutePath);
@@ -91,13 +93,11 @@ public class LoaderTest {
 
   @Test
   public void loadTestBadDate() throws Exception {
-
     Path resourceDirectory = Paths.get("src", "test", "resources", "topics-csv", "badDate");
     String absolutePath = resourceDirectory.toFile().getAbsolutePath();
     List<Long> newTopicIds = loader.load(absolutePath);
 
     assertEquals(0, newTopicIds.size());
-    }
+  }
 
 }
-

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,10 +17,13 @@ import java.util.Optional;
  */
 @Data
 @AllArgsConstructor
- class BibleData {
+ class BibleData implements Serializable {
   private List<Book> books;
   private Map<String, Verse> verses;
   private List<Chapter> chapters;
+
+  public BibleData() {
+  }
 
   public List<Book> getBooks() {
     return books;
@@ -53,7 +57,9 @@ import java.util.Optional;
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       return Optional.of(objectMapper.readValue(stream, BibleData.class));
-    } catch (IOException e) {
+    }catch (Exception e) {
+      System.err.println("Bible Load Error: "+e.getLocalizedMessage());
+      e.printStackTrace();
       return Optional.empty();
     }
   }

@@ -2,8 +2,10 @@ package org.swordexplorer.notes;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.swordexplorer.notes.bible.BibleService;
 import org.swordexplorer.notes.model.BibleTopic;
+import org.swordexplorer.notes.model.Note;
 import org.swordexplorer.notes.service.TopicService;
 import org.swordexplorer.notes.util.ListUtils;
 
@@ -21,15 +23,17 @@ import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.time.DateUtils.parseDate;
 
-@Component
+@Service
 @Slf4j
 class Loader {
 
   List<String> currentManifest = List.of();
   private TopicService topicService;
+  private BibleService bibleService;
 
   @Autowired
-  protected Loader(TopicService topicService) {
+  protected Loader(TopicService topicService, BibleService bibleService) {
+    this.bibleService =bibleService;
     this.topicService = topicService;
   }
 
@@ -70,8 +74,10 @@ class Loader {
             }
           } catch (IOException e) {
             log.error("error error updating manifest file: {}", e.getMessage());
+            log.error("error", e);
           } catch (Exception e) {
             log.error("error loading topic from file: {} {}", newCsvFile, e.getMessage());
+            log.error("error", e);
           }
           return new ArrayList<Long>().stream();
         }).collect(Collectors.toList());
@@ -106,12 +112,27 @@ class Loader {
       topic.setUsername("System");
       topic.setAuthor(parts[0]);
 
+        List<Note> notes = new ArrayList<>();
+      for(int lineNumber = 1; lineNumber < lines.size(); ++lineNumber) {
+        String line = lines.get(lineNumber);
+        String lineParts[] = line.split(",");
+        Note note = new Note();
+        String verseSpec = lineParts[1];
+        String noteText = lineParts[2];
+        note.setComments(noteText);
+        note.setVerseSpec(verseSpec);
+
+
+        System.out.println("Note: "+note);
+      }
       /// for each of the rest of the lines
       //// validate whether the first field is empty
       //// validate whether the second field is a valid verse spec and mark as bible note
       //// on error, log line number and error
       //// create Note object
       /// Add Note objects to BibleTopic
+
+
       /// Save BibleTopic in DB
       topic = topicService.createTopic(topic);
       /// return BibleTopic ID

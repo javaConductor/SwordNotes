@@ -5,12 +5,14 @@ import lombok.Data;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.swordexplorer.notes.exceptions.BibleServiceException;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.springframework.util.CollectionUtils.lastElement;
 
@@ -21,15 +23,15 @@ class Pair {
 }
 
 @Data
-@Component
+@Component("bibleService")
 public class SimpleBibleService implements BibleService {
   private org.swordexplorer.notes.bible.BibleData bibleData;
-  private List<Book> bookList;
   private List<Chapter> chapters;
   private Map<String, Verse> verses;
 
   public SimpleBibleService( @Value("${sword.bibletext.filename}") String jsonBibleTextFilename) {
-    init(jsonBibleTextFilename);
+    bibleData =  init(jsonBibleTextFilename)
+      .orElseThrow(() -> new BibleServiceException("could not initialize BibleService"));
   }
 
   public Optional<BibleData> init(String jsonBibleTextFilename) {
@@ -75,11 +77,9 @@ public class SimpleBibleService implements BibleService {
     if (!verseSpec.contains(":"))
       return false;
 
-//    String[] bookAndVerses = verseSpec.split(" ");
-//    String verses = bookAndVerses[1];
-//
     Pattern regexBkChpt = Pattern.compile("(\\d*\\s*\\w+)\\s+(\\d{1,3})");
-    Pattern regexVerse = Pattern.compile("(([\\d]{1,3})-*((\\d{1,3}+)[,]*\\s*)*)");
+    Pattern singleVerse = Pattern.compile("[\\d]{1,3}");
+    Pattern rangeOfVerses = Pattern.compile("[\\d]{1,3}-[\\d]{1,3}");
 
     String[] both = verseSpec.split(":");
     Matcher bkChptMatcher = regexBkChpt.matcher(both[0]);
@@ -92,7 +92,7 @@ public class SimpleBibleService implements BibleService {
     both[1] = both[1].replace(" ", "");
     List<String> verseSets = Arrays.asList(both[1].split(","));
     // find all the sets that do NOT match the pattern
-    return verseSets.stream().noneMatch(vs -> (regexVerse.matcher(vs).matches()));
+    return verseSets.stream().noneMatch(vs -> (singleVerse.matcher(vs).matches() && rangeOfVerses.matcher(vs).matches()));
   }
 
   public String optimizeVerseSpecVerses(String versesStr) {
@@ -102,7 +102,7 @@ public class SimpleBibleService implements BibleService {
       .flatMap(v -> {
         List<String> verseNums = Arrays.asList(v.split("-").clone());
         if (verseNums.size() == 1) {
-          return List.of(Integer.parseInt(verseNums.get(0))).stream();
+          return Stream.of(Integer.parseInt(verseNums.get(0)));
         } else {
           return IntStream
             .range(Integer.parseInt(verseNums.get(0)), Integer.parseInt(verseNums.get(1)))
@@ -110,10 +110,13 @@ public class SimpleBibleService implements BibleService {
         }
       }).collect(Collectors.toList());
 
+    if (verseNumberList.size() == 1){
+      return ""+verseNumberList.get(0);
+    }
     List<Pair> pairs = new ArrayList<>();
     verseNumberList.forEach(n -> {
       if (pairs.isEmpty()) {
-        pairs.add(new Pair(0, n));
+        pairs.add(new Pair(n, n));
       } else {
         Pair last = lastElement(pairs);
         int start = last.start;
@@ -141,14 +144,14 @@ public class SimpleBibleService implements BibleService {
     if (!isVerseSpec(verseSpec))
       // return new HashMap<String, Object>();
       return Map.of();
-    String[] parts = verseSpec.split(":");
-    List<String> bkChpt = Arrays.asList(parts[0].split(" "));
-    int chapter = Integer.parseInt(bkChpt.get(0));
-    String bkName = String.join(" ", bkChpt).trim();
+    String[] bookChptAndVerses = verseSpec.split(":");
+    List<String> bkChpt = Arrays.asList(bookChptAndVerses[0].split(" "));
+    int chapter = Integer.parseInt(bkChpt.get(1));
+    String bkName = bkChpt.get(0).trim();
     // if bad book name
     return bookNameToBook(bkName)
       .map(book -> {
-        String verses1 = (parts.length == 1) ? String.format("1-%d", chapterVerseCount(book.getId(), chapter)) : parts[1];
+        String verses1 = (bookChptAndVerses.length == 1) ? String.format("1-%d", chapterVerseCount(book.getId(), chapter)) : bookChptAndVerses[1];
         Map<String, Object> m = new HashMap<>();
         m.put("book", book);
         m.put("chapter", chapter);
@@ -191,8 +194,8 @@ public class SimpleBibleService implements BibleService {
         String vid = String.format("%02d%03d%03d", book.getId(), chapter, vNum);
         Verse verse = getVerse(vid).orElse(null);
         return (verse != null)
-          ? List.of(verse).stream()
-          : new ArrayList<Verse>().stream();
+          ? Stream.of(verse)
+          : Stream.of();
       })
       .collect(Collectors.toList());
     return new VerseRange(String.format("%s %s:%s", bkName, chapter, parsedVerseSpec.get("verses")), verses);
@@ -200,21 +203,26 @@ public class SimpleBibleService implements BibleService {
 
   @Override
   public Optional<Book> bookNameToBook(@NonNull final String bkName) {
-    Book theBook = null;
+    Book theBook;
     String bkNameUpper = bkName.toUpperCase();
 
+    List<Book> bookList = this.bibleData.getBooks();
+    System.out.println(String.format("Book: %s, BookList: %s", bkName, bookList));
     //find exact match
-    theBook = this.bookList.stream().filter(book -> book.getTitle().toUpperCase().equals(bkNameUpper))
+    theBook = bookList.stream().filter(book -> book.getTitle().toUpperCase().equals(bkNameUpper))
       .findFirst().orElse(null);
+    System.out.println(String.format("Book: %s, no exact match", bkName));
 
     if (theBook == null) {
       // find a unique partial match
-      List<Book> list = this.bookList.stream().filter(book -> book.getTitle().toUpperCase().startsWith(bkNameUpper.toUpperCase()))
+      List<Book> list = bookList.stream().filter(book -> book.getTitle().toUpperCase().startsWith(bkNameUpper.toUpperCase()))
         .collect(Collectors.toList());
+      System.out.println(String.format("Book: %s, matching books: %s", bkName, list));
+
       if (list.size() == 1)
         theBook = list.get(0);
     }
-    return Optional.of(theBook);
+    return theBook == null ? Optional.empty() : Optional.of(theBook);
   }
 
   @Override
@@ -355,14 +363,14 @@ public class SimpleBibleService implements BibleService {
   public void setBibleData(BibleData bibleData) {
     this.bibleData = bibleData;
   }
-
-  public List<Book> getBookList() {
-    return bookList;
-  }
-
-  public void setBookList(List<Book> bookList) {
-    this.bookList = bookList;
-  }
+//
+//  public List<Book> getBookList() {
+//    return bookList;
+//  }
+//
+//  public void setBookList(List<Book> bookList) {
+//    this.bookList = bookList;
+//  }
 
   public Object getChapters() {
     return chapters;

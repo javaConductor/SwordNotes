@@ -28,13 +28,12 @@ import java.util.Optional;
 @RequestMapping("/api/notes")
 public class Notes {
 
-  private final TopicService topicService;
+  private TopicService topicService = null;
 
   @Value("${server.port} 8080")
   int port;
-
   @Autowired
-  public Notes(TopicService topicService) {
+  public Notes( TopicService topicService) {
     this.topicService = topicService;
   }
 
