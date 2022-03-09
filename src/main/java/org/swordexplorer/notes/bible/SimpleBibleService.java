@@ -29,15 +29,9 @@ public class SimpleBibleService implements BibleService {
   private List<Chapter> chapters;
   private Map<String, Verse> verses;
 
-  public SimpleBibleService( @Value("${sword.bibletext.filename}") String jsonBibleTextFilename) {
-    bibleData =  init(jsonBibleTextFilename)
+  public SimpleBibleService(@Value("${sword.bibletext.filename}") String jsonBibleTextFilename) {
+    bibleData = init(jsonBibleTextFilename)
       .orElseThrow(() -> new BibleServiceException("could not initialize BibleService"));
-  }
-
-  public Optional<BibleData> init(String jsonBibleTextFilename) {
-    return  BibleData.load(jsonBibleTextFilename)
-      .map(SimpleBibleService::addVerseCountsToBooks)
-      .stream().findFirst();
   }
 
   private static BibleData addVerseCountsToBooks(@NonNull BibleData bibleData) {
@@ -65,6 +59,12 @@ public class SimpleBibleService implements BibleService {
       .map(Chapter::getVerses)
       .collect(Collectors.toList());
     return new Book(book.getId(), book.getTitle(), book.getNumberOfChapters(), counts);
+  }
+
+  public Optional<BibleData> init(String jsonBibleTextFilename) {
+    return BibleData.load(jsonBibleTextFilename)
+      .map(SimpleBibleService::addVerseCountsToBooks)
+      .stream().findFirst();
   }
 
   @Override
@@ -110,8 +110,8 @@ public class SimpleBibleService implements BibleService {
         }
       }).collect(Collectors.toList());
 
-    if (verseNumberList.size() == 1){
-      return ""+verseNumberList.get(0);
+    if (verseNumberList.size() == 1) {
+      return "" + verseNumberList.get(0);
     }
     List<Pair> pairs = new ArrayList<>();
     verseNumberList.forEach(n -> {
@@ -207,17 +207,17 @@ public class SimpleBibleService implements BibleService {
     String bkNameUpper = bkName.toUpperCase();
 
     List<Book> bookList = this.bibleData.getBooks();
-    System.out.println(String.format("Book: %s, BookList: %s", bkName, bookList));
+    System.out.printf("Book: %s, BookList: %s%n", bkName, bookList);
     //find exact match
     theBook = bookList.stream().filter(book -> book.getTitle().toUpperCase().equals(bkNameUpper))
       .findFirst().orElse(null);
-    System.out.println(String.format("Book: %s, no exact match", bkName));
+    System.out.printf("Book: %s, no exact match%n", bkName);
 
     if (theBook == null) {
       // find a unique partial match
       List<Book> list = bookList.stream().filter(book -> book.getTitle().toUpperCase().startsWith(bkNameUpper.toUpperCase()))
         .collect(Collectors.toList());
-      System.out.println(String.format("Book: %s, matching books: %s", bkName, list));
+      System.out.printf("Book: %s, matching books: %s", bkName, list);
 
       if (list.size() == 1)
         theBook = list.get(0);

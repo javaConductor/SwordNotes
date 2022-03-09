@@ -28,12 +28,12 @@ import java.util.Optional;
 @RequestMapping("/api/notes")
 public class Notes {
 
-  private TopicService topicService = null;
-
   @Value("${server.port} 8080")
   int port;
+  private TopicService topicService;
+
   @Autowired
-  public Notes( TopicService topicService) {
+  public Notes(TopicService topicService) {
     this.topicService = topicService;
   }
 
@@ -56,7 +56,7 @@ public class Notes {
     @ApiResponse(code = 500, message = "The request failed because of an unknown server error. Please report the error to the team.")})
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<BibleTopic> getTopic(@PathVariable long id) throws Exception{
+  public ResponseEntity<BibleTopic> getTopic(@PathVariable long id) {
     Optional<BibleTopic> possibleNotes = topicService.getTopic(id);
     return ResponseEntity.ok().body(possibleNotes.orElseThrow(() -> new NoDataFoundException("Could not find notes: " + id)));
   }
@@ -70,13 +70,22 @@ public class Notes {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<BibleTopic> createTopic(@Valid @RequestBody BibleTopic bibleTopic) {
-    BibleTopic notes = topicService.createTopic(bibleTopic);
+    BibleTopic topic = topicService.createTopic(bibleTopic);
     //TODO change to https
-    URI uri = URI.create(String.format("http://%s:%d/api/notes/%d", getHost(), port, notes.getId()));
-    return ResponseEntity.created(uri).body(notes);
+    URI uri = URI.create(String.format("http://%s:%d/api/notes/%d", getHost(), port, topic.getId()));
+    return ResponseEntity.created(uri).body(topic);
   }
 
-  String getHost(){
+  @ApiOperation(value = "Number of topics")
+  @ApiResponses({
+    @ApiResponse(code = 201, message = "The request has succeeded. Notes have been created."),
+    @ApiResponse(code = 400, message = "The request was not understood by the server. The response body contains more information."),
+    @ApiResponse(code = 500, message = "The request failed because of an unknown server error. Please report the error to the team.")})
+  @GetMapping(path = "/count")
+  public int getCount() {
+    return getAllTopics().getBody().size();
+  }
+  String getHost() {
     try {
       return InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {

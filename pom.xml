@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -87,11 +87,11 @@
       <version>22.0.0</version>
       <scope>compile</scope>
     </dependency>
-      <dependency>
-          <groupId>io.swagger</groupId>
-          <artifactId>swagger-annotations</artifactId>
-          <version>1.6.3</version>
-      </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>1.6.3</version>
+    </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
@@ -105,6 +105,11 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.22</version>
     </dependency>
   </dependencies>
   <build>
@@ -189,12 +194,12 @@
           </execution>
         </executions>
         <configuration>
-          <url>jdbc:postgresql://devgp7pdb02.ondeck.systems:5432/offers</url>
-          <user>app_offers_ddl_d</user>
-          <password>app_offers_ddl_d</password>
+          <url>jdbc:postgresql://localhost:5432/SwordExplorer?currentSchema=sword_data</url>
+          <user>sword_explorer</user>
+          <password>4$wbX*cbC-GxC2i</password>
           <baselineOnMigrate>true</baselineOnMigrate>
           <schemas>
-            <schema>offers</schema>
+            <schema>sword_data</schema>
           </schemas>
           <createSchemas>false</createSchemas>
           <locations>

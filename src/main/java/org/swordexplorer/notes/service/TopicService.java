@@ -1,8 +1,12 @@
 package org.swordexplorer.notes.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.swordexplorer.notes.bible.BibleService;
 import org.swordexplorer.notes.exceptions.BadVerseSpecException;
 import org.swordexplorer.notes.model.BibleTopic;
@@ -20,12 +24,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = Exception.class)
 public class TopicService {
   private final BibleTopicRepository bibleTopicRepository;
   private final NoteRepository noteRepository;
   private final BibleService bibleService;
   private final UserService userService;
   private final EntityManager em;
+  private Session session;
 
   @Autowired
   public TopicService(final BibleTopicRepository bibleTopicRepository,
@@ -40,10 +46,12 @@ public class TopicService {
     this.em = em;
   }
 
+  @Transactional(propagation = Propagation.REQUIRED, readOnly = true, noRollbackFor = Exception.class)
   public Optional<BibleTopic> getTopic(long id) {
     log.info("getTopic:: {}", id);
-    BibleTopic //n = bibleTopicRepository.getById(id);
-      n = em.find(BibleTopic.class, id);
+
+    BibleTopic n = bibleTopicRepository.getById(id);
+    n = (BibleTopic) Hibernate.unproxy(n);
     return n == null ? Optional.empty() : Optional.of(n);
   }
 
@@ -54,7 +62,9 @@ public class TopicService {
       .collect(Collectors.toList());
     bibleTopic.setNotes(savedNotes);
     log.info("createTopic:: {}", bibleTopic);
-    return bibleTopicRepository.saveAndFlush(bibleTopic);
+    BibleTopic newTopic = bibleTopicRepository.saveAndFlush(bibleTopic);
+    newTopic = (BibleTopic) Hibernate.unproxy(newTopic);
+    return newTopic;
   }
 
   public List<BibleTopic> getTopics() {
@@ -66,7 +76,8 @@ public class TopicService {
     log.info("saveNote:: {}", note);
     if (!validateVerseSpec(note.getVerseSpec()))
       throw new BadVerseSpecException(note.getVerseSpec());
-    return noteRepository.save(note);
+    Note savedNote = noteRepository.save(note);
+    return (Note) Hibernate.unproxy(savedNote);
   }
 
   public boolean validateVerseSpec(String verseSpec) {

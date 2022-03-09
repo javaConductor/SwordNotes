@@ -1,10 +1,10 @@
 package org.swordexplorer.notes.bible;
 
+import lombok.NonNull;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import lombok.NonNull;
 
 /**
  *

@@ -33,16 +33,16 @@ class Loader {
 
   @Autowired
   protected Loader(TopicService topicService, BibleService bibleService) {
-    this.bibleService =bibleService;
+    this.bibleService = bibleService;
     this.topicService = topicService;
   }
 
   public List<Long> load(String directory) throws Exception {
     List<Long> newTopicIds = loadTopicsFromDirectory(directory);
-    System.out.println(String.format("Loaded %d new topic%s from directory: %s",
+    System.out.printf("Loaded %d new topic%s from directory: %s%n",
       newTopicIds.size(),
       (newTopicIds.size() != 1 ? "s" : ""),
-      directory));
+      directory);
     return newTopicIds;
   }
 
@@ -52,8 +52,8 @@ class Loader {
    */
   protected List<Long> loadTopicsFromDirectory(String directory) throws Exception {
 
-    int filesToLoad = -1, fileLoaded = 0;
-    List<Long> loadedNotesIds = List.of();
+    int filesToLoad = -1;
+    List<Long> loadedNotesIds;
     try {
       // load manifest file from directory (if any)
       this.currentManifest = loadTopicManifest(directory);
@@ -65,12 +65,12 @@ class Loader {
         .filter(csvFile -> !this.currentManifest.contains(csvFile))// filter out ones already in the manifest
         .filter(file -> (file.endsWith("csv")))// filter out all but .csv
         .flatMap(newCsvFile -> {
-          long newId = -1;
+          long newId;
           try {
             newId = loadTopicFromFile(new File(directory, newCsvFile));
             if (newId != -1) {
               addToManifest(directory, newCsvFile);
-              return List.of(newId).stream();
+              return Stream.of(newId);
             }
           } catch (IOException e) {
             log.error("error error updating manifest file: {}", e.getMessage());
@@ -79,7 +79,7 @@ class Loader {
             log.error("error loading topic from file: {} {}", newCsvFile, e.getMessage());
             log.error("error", e);
           }
-          return new ArrayList<Long>().stream();
+          return Stream.empty();
         }).collect(Collectors.toList());
     } catch (IOException e) {
       log.error("error loading topics from directory: {}: {}", directory, e.getMessage());
@@ -91,7 +91,7 @@ class Loader {
   }
 
   protected long loadTopicFromFile(File f) throws Exception {
-    String parts[] = null;
+    String[] parts = null;
 
     try {
       /// open file
@@ -102,36 +102,43 @@ class Loader {
       parts = titleLine.split(",");
       /// validate whether the second is a date
       java.util.Date date = parseDate(parts[1],
-        new String[]{"yyyy-MM-dd", "dd/MM/yyyy", "dd MMM yyyy"});
+        "yyyy-MM-dd", "dd/MM/yyyy", "dd MMM yyyy");
 
       /// on error, log error and return -1
       /// create BibleTopic object
-      BibleTopic topic = new BibleTopic();
-      topic.setTitle(parts[2]);
-      topic.setDate(new Date(date.getTime()));
-      topic.setUsername("System");
-      topic.setAuthor(parts[0]);
+      BibleTopic topic = BibleTopic.Builder.aBibleTopic()
+        .title(parts[2])
+        .topicDate(new Date(date.getTime()))
+        .createdBy("System")
+        .createdAt(new Date(new java.util.Date().getTime()))
+        .updatedBy("System")
+        .updatedAt(new Date(new java.util.Date().getTime()))
+        .author(parts[0])
+        .build();
 
-        List<Note> notes = new ArrayList<>();
-      for(int lineNumber = 1; lineNumber < lines.size(); ++lineNumber) {
+      List<Note> notes = new ArrayList<>();
+      for (int lineNumber = 1; lineNumber < lines.size(); ++lineNumber) {
         String line = lines.get(lineNumber);
-        String lineParts[] = line.split(",");
+        String[] lineParts = line.split(",");
         Note note = new Note();
         String verseSpec = lineParts[1];
         String noteText = lineParts[2];
         note.setComments(noteText);
         note.setVerseSpec(verseSpec);
+        boolean isVerseSpec = bibleService.isVerseSpec(verseSpec);
+        note.setBibleVerse(isVerseSpec);
+        notes.add(note);
 
-
-        System.out.println("Note: "+note);
+        System.out.println("Note: " + note);
       }
+      topic.setNotes(notes);
+
       /// for each of the rest of the lines
       //// validate whether the first field is empty
       //// validate whether the second field is a valid verse spec and mark as bible note
       //// on error, log line number and error
       //// create Note object
       /// Add Note objects to BibleTopic
-
 
       /// Save BibleTopic in DB
       topic = topicService.createTopic(topic);
@@ -147,7 +154,10 @@ class Loader {
 
   protected List<String> loadTopicFileList(String dir) throws IOException {
     File f = new File(dir);
-    return Stream.of(f.listFiles())
+    File[] filesInDir = f.listFiles();
+    if (filesInDir == null)
+      throw new IOException("error loading topic from directory:" + f.getAbsolutePath() + "\nMay not be a directory.");
+    return Stream.of(filesInDir)
       .filter(file -> !file.isDirectory())
       .filter(file -> (file.getName().endsWith("csv")))// filter out all but .csv
       .map(File::getName)

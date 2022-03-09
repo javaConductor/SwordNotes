@@ -3,8 +3,8 @@ import axios from "axios";
 export default (function (axios) {
   axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
-  function emptyString(s){
-    if( !s )
+  function emptyString(s) {
+    if (!s)
       return true;
     return s.trim().length === 0;
   }
@@ -27,7 +27,8 @@ export default (function (axios) {
         this.accessToken = access_token;
         return [{
           accessToken: access_token,
-          refreshToken: refresh_token}];
+          refreshToken: refresh_token
+        }];
       }, (err) => {
         return [null, `authentication error: ${err}`];
       });
@@ -42,7 +43,7 @@ export default (function (axios) {
 
     authenticated() {
       console.log(`backend.authenticated: tokens: ${this.accessToken}:${this.refreshToken}`);
-      const authOk = !emptyString( this.accessToken ) && !emptyString( this.refreshToken );
+      const authOk = !emptyString(this.accessToken) && !emptyString(this.refreshToken);
       console.log(`backend.authenticated: ${authOk}`);
       return authOk;
     }
